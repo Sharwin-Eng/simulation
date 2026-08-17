@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANTIGRAVITY — Adaptive Traffic Simulation & DSL Studio</title>
+  <meta name="description" content="Autonomous Adaptive Traffic Light Controller Simulation Engine and DSL Compiler Inspector">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-badge">
+        <span class="signal-dot red"></span>
+        <span class="signal-dot yellow"></span>
+        <span class="signal-dot green"></span>
+      </div>
+      <div class="logo-text">
+        <span class="brand-title">ANTIGRAVITY</span>
+        <span class="brand-subtitle">Autonomous Adaptive Traffic Control &amp; DSL Studio</span>
+      </div>
+    </div>
+    
+    <nav class="view-tabs">
+      <button id="tab-btn-simulation" class="tab-btn active" onclick="switchTab('simulation')">
+        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
+        <span>Simulation &amp; Analytics</span>
+      </button>
+
+      <button id="tab-btn-dsl" class="tab-btn" onclick="switchTab('dsl')">
+        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span>DSL Studio &amp; Compiler</span>
+      </button>
+
+      <button id="tab-btn-compare" class="tab-btn" onclick="switchTab('compare')">
+        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span>Comparative Analysis</span>
+      </button>
+    </nav>
+
+    <div class="header-status">
+      <div class="status-indicator online"></div>
+      <span id="sim-clock-display" class="clock-badge">00:00.0</span>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+    
+    <!-- TAB 1: Simulation & Analytics View -->
+    <section id="view-simulation" class="view-section active">
+      <div class="sim-grid-layout">
+        
+        <!-- Left: Interactive Canvas & Control Bar -->
+        <div class="canvas-panel glass-card">
+          <div class="panel-header">
+            <div class="title-with-icon">
+              <svg class="panel-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+              <h3>Intersection Canvas View</h3>
+            </div>
+            <div class="canvas-actions">
+              <span id="controller-badge" class="badge badge-adaptive">Mode: Adaptive Controller</span>
+            </div>
+          </div>
+          
+          <div class="canvas-wrapper">
+            <canvas id="trafficCanvas" width="700" height="700"></canvas>
+          </div>
+
+          <!-- Playback Controls Bar -->
+          <div class="control-bar">
+            <button id="btn-play" class="ctrl-btn primary" onclick="togglePlayPause()">
+              <svg id="play-svg-icon" class="svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="play-text">Play</span>
+            </button>
+
+            <button id="btn-step" class="ctrl-btn" onclick="stepSimulation()">
+              <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="3"></line>
+              </svg>
+              <span>Step (100ms)</span>
+            </button>
+
+            <button id="btn-reset" class="ctrl-btn" onclick="resetSimulation()">
+              <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+            
+            <div class="control-group">
+              <label for="speed-select">Speed:</label>
+              <select id="speed-select" onchange="changeSpeed(this.value)">
+                <option value="1">1x (Real-time)</option>
+                <option value="2">2x</option>
+                <option value="5" selected>5x</option>
+                <option value="10">10x</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="mode-select">Controller:</label>
+              <select id="mode-select" onchange="changeControllerMode(this.value)">
+                <option value="adaptive" selected>Adaptive Control</option>
+                <option value="fixed">Fixed-Timer (30s)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="scenario-select">Scenario:</label>
+              <select id="scenario-select" onchange="loadPresetScenario(this.value)">
+                <option value="normal">Normal Traffic (Balanced)</option>
+                <option value="rush_hour">Rush Hour (Heavy NS)</option>
+                <option value="emergency">Emergency Priority Vehicle</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Real-Time Analytics & Sensor Telemetry -->
+        <div class="metrics-panel-column">
+          
+          <!-- Key Performance Gauge Cards -->
+          <div class="metrics-summary-grid">
+            <div class="metric-card glass-card">
+              <div class="metric-header">
+                <span class="metric-title">Active Vehicles</span>
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+              </div>
+              <div id="val-active-vehicles" class="metric-value">0</div>
+              <div class="metric-sub">On Intersection Approaches</div>
+            </div>
+
+            <div class="metric-card glass-card">
+              <div class="metric-header">
+                <span class="metric-title">Total Departed</span>
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div id="val-departed-vehicles" class="metric-value">0</div>
+              <div class="metric-sub">Cumulative Trips Cleared</div>
+            </div>
+
+            <div class="metric-card glass-card">
+              <div class="metric-header">
+                <span class="metric-title">Avg Wait Time</span>
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div id="val-avg-wait" class="metric-value">0.0s</div>
+              <div class="metric-sub">Queued Vehicles</div>
+            </div>
+
+            <div class="metric-card glass-card">
+              <div class="metric-header">
+                <span class="metric-title">Congestion Index</span>
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              </div>
+              <div id="val-congestion" class="metric-value">0.0%</div>
+              <div class="metric-sub">Road Capacity Usage</div>
+            </div>
+          </div>
+
+          <!-- Approach-wise Sensor Breakdown Table -->
+          <div class="sensor-table-card glass-card">
+            <div class="panel-header">
+              <div class="title-with-icon">
+                <svg class="panel-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                <h3>Virtual Sensor Readings</h3>
+              </div>
+              <span class="refresh-indicator">Live (10Hz)</span>
+            </div>
+            <table class="sensor-table">
+              <thead>
+                <tr>
+                  <th>Approach</th>
+                  <th>Signal</th>
+                  <th>Queue Count</th>
+                  <th>Arrival Rate</th>
+                  <th>Avg Wait</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="row-north">
+                  <td class="dir-cell"><span class="dir-dot north"></span> North</td>
+                  <td><span id="sig-north" class="signal-tag red">RED</span></td>
+                  <td id="q-north">0</td>
+                  <td id="arr-north">0 vpm</td>
+                  <td id="wait-north">0.0s</td>
+                </tr>
+                <tr id="row-south">
+                  <td class="dir-cell"><span class="dir-dot south"></span> South</td>
+                  <td><span id="sig-south" class="signal-tag red">RED</span></td>
+                  <td id="q-south">0</td>
+                  <td id="arr-south">0 vpm</td>
+                  <td id="wait-south">0.0s</td>
+                </tr>
+                <tr id="row-east">
+                  <td class="dir-cell"><span class="dir-dot east"></span> East</td>
+                  <td><span id="sig-east" class="signal-tag red">RED</span></td>
+                  <td id="q-east">0</td>
+                  <td id="arr-east">0 vpm</td>
+                  <td id="wait-east">0.0s</td>
+                </tr>
+                <tr id="row-west">
+                  <td class="dir-cell"><span class="dir-dot west"></span> West</td>
+                  <td><span id="sig-west" class="signal-tag red">RED</span></td>
+                  <td id="q-west">0</td>
+                  <td id="arr-west">0 vpm</td>
+                  <td id="wait-west">0.0s</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Signal Phase Telemetry -->
+          <div class="phase-card glass-card">
+            <div class="panel-header">
+              <div class="title-with-icon">
+                <svg class="panel-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="2" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22" y2="12"></line></svg>
+                <h3>Controller Phase Telemetry</h3>
+              </div>
+            </div>
+            <div class="phase-info-grid">
+              <div class="phase-info-item">
+                <span class="lbl">Current Phase:</span>
+                <span id="val-current-phase" class="val highlight">NORTH_SOUTH</span>
+              </div>
+              <div class="phase-info-item">
+                <span class="lbl">Phase State:</span>
+                <span id="val-phase-state" class="val">GREEN</span>
+              </div>
+              <div class="phase-info-item">
+                <span class="lbl">NS Allocated Green:</span>
+                <span id="val-green-ns" class="val">30s</span>
+              </div>
+              <div class="phase-info-item">
+                <span class="lbl">EW Allocated Green:</span>
+                <span id="val-green-ew" class="val">30s</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DSL Studio & Compiler Inspector View -->
+    <section id="view-dsl" class="view-section">
+      <div class="dsl-grid-layout">
+        
+        <!-- Left Column: DSL Source Code Editor -->
+        <div class="dsl-editor-panel glass-card">
+          <div class="panel-header">
+            <div class="title-with-icon">
+              <svg class="panel-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <h3>Traffic DSL Source Editor</h3>
+            </div>
+            <div class="editor-actions">
+              <button class="ctrl-btn secondary" onclick="loadSampleDSL('emergency')">Emergency Script</button>
+              <button class="ctrl-btn secondary" onclick="loadSampleDSL('adaptive')">Adaptive Script</button>
+              <button id="btn-compile" class="ctrl-btn primary" onclick="compileDSL()">
+                <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <span>Compile &amp; Execute</span>
+              </button>
+            </div>
+          </div>
+          <textarea id="dsl-code-input" class="code-editor-area" spellcheck="false">// Traffic DSL Script Example
+scenario AdaptiveRushHour {
+  config speed = 1
+  config duration = 300s
+
+  intersection CentralCross {
+    road north { lanes 1 }
+    road south { lanes 1 }
+    road east  { lanes 1 }
+    road west  { lanes 1 }
+  }
+
+  spawn vehicle at north rate 35vpm
+  spawn vehicle at south rate 35vpm
+  spawn vehicle at east  rate 15vpm
+  spawn vehicle at west  rate 15vpm
+
+  when emergency at north {
+    print "EMERGENCY: Priority Green forced for North"
+    extend green north by 20s
+  }
+
+  when queue north > 10 and wait north > 20s {
+    extend green north by 10s
+  }
+}</textarea>
+        </div>
+
+        <!-- Right Column: Compiler Pipeline Inspector -->
+        <div class="compiler-inspector-panel glass-card">
+          <div class="panel-header">
+            <div class="title-with-icon">
+              <svg class="panel-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              <h3>Compiler Pipeline Inspector</h3>
+            </div>
+          </div>
+
+          <!-- Inspector Stage Sub-Tabs -->
+          <div class="inspector-tabs">
+            <button id="insp-tab-tokens" class="sub-tab active" onclick="switchInspectorTab('tokens')">1. Lexer Tokens</button>
+            <button id="insp-tab-ast" class="sub-tab" onclick="switchInspectorTab('ast')">2. AST Tree</button>
+            <button id="insp-tab-semantic" class="sub-tab" onclick="switchInspectorTab('semantic')">3. Semantic Analysis</button>
+            <button id="insp-tab-ir" class="sub-tab" onclick="switchInspectorTab('ir')">4. IR &amp; Optimizer</button>
+            <button id="insp-tab-exec" class="sub-tab" onclick="switchInspectorTab('exec')">5. IR Execution</button>
+          </div>
+
+          <!-- Sub-Tab Content Windows -->
+          <div class="inspector-content">
+            <div id="insp-content-tokens" class="sub-content active">
+              <pre id="output-tokens" class="code-output">Click "Compile & Execute" to inspect Lexer tokens...</pre>
+            </div>
+
+            <div id="insp-content-ast" class="sub-content">
+              <pre id="output-ast" class="code-output">Click "Compile & Execute" to view AST Tree...</pre>
+            </div>
+
+            <div id="insp-content-semantic" class="sub-content">
+              <div id="output-semantic" class="diagnostics-box">
+                <p class="muted">No semantic analysis run yet.</p>
+              </div>
+            </div>
+
+            <div id="insp-content-ir" class="sub-content">
+              <div class="ir-split-view">
+                <div class="ir-col">
+                  <h4>Raw Generated IR</h4>
+                  <pre id="output-ir-raw" class="code-output"></pre>
+                </div>
+                <div class="ir-col">
+                  <h4>Optimized IR</h4>
+                  <pre id="output-ir-opt" class="code-output"></pre>
+                </div>
+              </div>
+            </div>
+
+            <div id="insp-content-exec" class="sub-content">
+              <pre id="output-exec" class="code-output">Click "Compile & Execute" to inspect execution side-effects...</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: Comparative Analysis View -->
+    <section id="view-compare" class="view-section">
+      <div class="compare-container glass-card">
+        <div class="panel-header">
+          <div>
+            <h2>Comparative Performance Benchmark</h2>
+            <p class="muted">Quantitative evaluation of Adaptive Signal Control vs. Fixed-Timer Baseline (300 seconds)</p>
+          </div>
+          <button id="btn-run-compare" class="ctrl-btn primary large" onclick="runComparisonBenchmark()">
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Run Full Comparative Benchmark</span>
+          </button>
+        </div>
+
+        <!-- Benchmark Loading Spinner -->
+        <div id="compare-loading" class="loading-overlay hidden">
+          <div class="spinner"></div>
+          <p>Running dual 300-second simulations (Adaptive vs Fixed-Timer)...</p>
+        </div>
+
+        <!-- Benchmark Results Grid -->
+        <div id="compare-results" class="compare-results-grid hidden">
+          
+          <!-- Key Improvement Banner Cards -->
+          <div class="improvement-cards-row">
+            <div class="imp-card positive">
+              <div class="imp-title">Average Wait Time Reduction</div>
+              <div id="imp-wait-val" class="imp-value">-0.0%</div>
+              <div class="imp-sub">Less delay per vehicle</div>
+            </div>
+            
+            <div class="imp-card positive">
+              <div class="imp-title">Intersection Throughput Increase</div>
+              <div id="imp-throughput-val" class="imp-value">+0.0%</div>
+              <div class="imp-sub">More vehicles cleared / min</div>
+            </div>
+
+            <div class="imp-card positive">
+              <div class="imp-title">Congestion Level Reduction</div>
+              <div id="imp-congestion-val" class="imp-value">-0.0%</div>
+              <div class="imp-sub">Lower road capacity saturation</div>
+            </div>
+          </div>
+
+          <!-- Detailed Side-by-Side Comparison Table -->
+          <div class="table-wrapper glass-card">
+            <h3>Detailed Metric Comparison Table</h3>
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>Performance Metric</th>
+                  <th>Fixed-Timer Control</th>
+                  <th>Adaptive Control</th>
+                  <th>Delta / Improvement</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Total Vehicles Processed</td>
+                  <td id="comp-fixed-total">0</td>
+                  <td id="comp-adapt-total">0</td>
+                  <td id="comp-diff-total" class="neutral">-</td>
+                </tr>
+                <tr>
+                  <td>Total Departed (Completed Trips)</td>
+                  <td id="comp-fixed-departed">0</td>
+                  <td id="comp-adapt-departed">0</td>
+                  <td id="comp-diff-departed" class="good">-</td>
+                </tr>
+                <tr>
+                  <td>Overall Average Wait Time</td>
+                  <td id="comp-fixed-wait">0.0s</td>
+                  <td id="comp-adapt-wait">0.0s</td>
+                  <td id="comp-diff-wait" class="good">-</td>
+                </tr>
+                <tr>
+                  <td>Overall Maximum Wait Time</td>
+                  <td id="comp-fixed-maxwait">0.0s</td>
+                  <td id="comp-adapt-maxwait">0.0s</td>
+                  <td id="comp-diff-maxwait" class="good">-</td>
+                </tr>
+                <tr>
+                  <td>Throughput (Vehicles / Min)</td>
+                  <td id="comp-fixed-throughput">0 vpm</td>
+                  <td id="comp-adapt-throughput">0 vpm</td>
+                  <td id="comp-diff-throughput" class="good">-</td>
+                </tr>
+                <tr>
+                  <td>Congestion Index (0 to 1.0)</td>
+                  <td id="comp-fixed-congestion">0.000</td>
+                  <td id="comp-adapt-congestion">0.000</td>
+                  <td id="comp-diff-congestion" class="good">-</td>
+                </tr>
+                <tr>
+                  <td>Total Cycles Completed</td>
+                  <td id="comp-fixed-cycles">0</td>
+                  <td id="comp-adapt-cycles">0</td>
+                  <td id="comp-diff-cycles" class="neutral">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Script -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

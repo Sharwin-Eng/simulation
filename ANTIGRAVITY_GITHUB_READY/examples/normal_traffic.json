@@ -1,0 +1,35 @@
+{
+  "simulation": {
+    "tickInterval": 0.1,
+    "speedMultiplier": 1,
+    "randomSeed": 42,
+    "maxVehicles": 10000,
+    "simulationDuration": 300
+  },
+  "road": {
+    "length": 300,
+    "laneWidth": 3.5,
+    "lanesPerDirection": 1
+  },
+  "vehicle": {
+    "length": 4.5,
+    "maxSpeed": 13.9,
+    "acceleration": 2.6,
+    "deceleration": 4.5,
+    "minGap": 2.0
+  },
+  "signal": {
+    "minGreenTime": 10,
+    "maxGreenTime": 60,
+    "yellowTime": 3,
+    "allRedTime": 2,
+    "fixedGreenTime": 30
+  },
+  "arrival": {
+    "north": 20,
+    "south": 20,
+    "east": 20,
+    "west": 20
+  },
+  "description": "Normal traffic with equal arrival rates from all directions."
+}

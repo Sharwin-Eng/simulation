@@ -1,0 +1,20 @@
+{
+  "name": "antigravity-traffic-simulation",
+  "version": "1.0.0",
+  "description": "Autonomous Adaptive Traffic Light Controller Simulation Engine and DSL Compiler Studio",
+  "type": "module",
+  "main": "source/visualization/server.js",
+  "scripts": {
+    "start": "node source/visualization/server.js",
+    "test": "node --max-old-space-size=4096 --test tests/simulation.test.js tests/sensors-control.test.js tests/compiler.test.js"
+  },
+  "keywords": [
+    "traffic",
+    "simulation",
+    "compiler",
+    "dsl",
+    "adaptive-control"
+  ],
+  "author": "ANTIGRAVITY",
+  "license": "MIT"
+}
